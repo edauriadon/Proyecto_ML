@@ -1,0 +1,33 @@
+{
+  "model_name": "MobileNetV2-Waste-Classifier",
+  "framework": "Keras / TensorFlow 2.x",
+  "format": "HDF5 (.h5)",
+  "input_shape": [null, 224, 224, 3],
+  "num_classes": 8,
+  "classes": [
+    "metal",
+    "glass",
+    "organic_waste",
+    "battery",
+    "trash",
+    "textiles",
+    "paper_cardboard",
+    "plastic"
+  ],
+  "base_model": "MobileNetV2 (ImageNet weights)",
+  "metrics": {
+    "accuracy": 0.9120,
+    "precision_macro": 0.9085,
+    "recall_macro": 0.9120,
+    "f1_macro": 0.9030,
+    "roc_auc_ovr": 0.9820
+  },
+  "training_parameters": {
+    "epochs": 25,
+    "batch_size": 32,
+    "optimizer": "Adam(learning_rate=0.0001)",
+    "loss": "categorical_crossentropy",
+    "fine_tuning_layers": "last_30"
+  }
+}
+

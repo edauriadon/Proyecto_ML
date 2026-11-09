@@ -1,0 +1,22 @@
+ENLACE Y PRESENTACIÓN DE VIDEO INTERACTIVO DEL PROYECTO
+============================================================
+Proyecto: Sistema Inteligente para la Detección y Clasificación de Desechos Sólidos en Ríos
+Maestría en IA, Educación e Investigación | UFHEC
+Autor: Edauris Adon Evangelista (MT-2026-02532)
+
+1. REPRODUCTOR INTERACTIVO LOCAL / GITHUB PAGES:
+   - Archivo: video/interactive_presentation.html
+   - Despliegue en Landing Page: Sección "Video de Presentación Interactivo" en index.html
+   - Despliegue en Streamlit: Pestaña 3 de https://Proyecto_ML.streamlit.app
+
+2. REPOSITORIO GITHUB DEL PROYECTO:
+   - URL: https://github.com/edauriadon/Proyecto-ML.git
+
+3. APLICACIÓN WEB INTERACTIVA (STREAMLIT CLOUD):
+   - URL: https://Proyecto_ML.streamlit.app
+
+4. METODOLOGÍA DEL VIDEO:
+   - Generado conforme al formato de la skill de video 'latent-spaces/brag' y pautas de sustentación del curso.
+   - Duración: 5 Minutos (Elevator Pitch Académico).
+   - Guión completo: video/script_sustentacion.md
+

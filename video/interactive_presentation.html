@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Interactivo · Sustentación Proyecto Machine Learning UFHEC</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .video-container {
+      width: 100%;
+      max-width: 960px;
+      background: #1e293b;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+    }
+    .screen-stage {
+      position: relative;
+      width: 100%;
+      height: 540px;
+      background: linear-gradient(135deg, #0b1329 0%, #112240 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: #00897b;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 20px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    h2 { font-size: 2rem; color: #38bdf8; margin-bottom: 12px; }
+    h3 { font-size: 1.3rem; color: #94a3b8; font-weight: 400; margin-bottom: 25px; }
+    .content-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 780px;
+      line-height: 1.6;
+      font-size: 1.05rem;
+      color: #cbd5e1;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 780px;
+    }
+    .metric-item {
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .metric-val { font-size: 1.8rem; font-weight: bold; color: #10b981; }
+    .metric-sub { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; margin-top: 5px; }
+    .subtitles-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 5%;
+      width: 90%;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fef08a;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      min-height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 4px solid #38bdf8;
+    }
+    .controls-panel {
+      background: #0f172a;
+      padding: 15px 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px solid #334155;
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #334155;
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      border-radius: 4px;
+      transition: width 0.2s linear;
+    }
+    .btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .btn-group { display: flex; align-items: center; gap: 10px; }
+    button.ctrl-btn {
+      background: #1e293b;
+      color: white;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    button.ctrl-btn:hover { background: #38bdf8; color: #0f172a; }
+    button.play-btn {
+      background: #10b981;
+      color: #0f172a;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.play-btn:hover { background: #34d399; }
+    .timer-text { font-family: monospace; font-size: 0.95rem; color: #94a3b8; }
+    .chapter-pills {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-top: 5px;
+    }
+    .chapter-pill {
+      background: #1e293b;
+      color: #94a3b8;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      border: 1px solid #334155;
+    }
+    .chapter-pill.active { background: #0284c7; color: white; border-color: #38bdf8; }
+  </style>
+</head>
+<body>
+
+  <div class="video-container">
+    <div class="screen-stage">
+      <!-- SLIDE 1: Problema -->
+      <div class="slide active" id="slide-0">
+        <span class="badge">Capítulo 1 / 5 · Diagnóstico Fluvial</span>
+        <h2>Crisis de Contaminación en Ríos y Cañadas</h2>
+        <h3>Millones de toneladas de desechos sólidos amenazan nuestras cuencas hídricas</h3>
+        <div class="content-box">
+          <p>Plásticos PET, bolsas, metales, botellas de vidrio, textiles y pilas tóxicas son arrojados descontroladamente a cañadas y ríos. Esta basura tapona compuertas, provoca inundaciones masivas en temporadas lluviosas y destruye ecosistemas marinos. Los muestreos manuales son costosos, lentos y de alto riesgo.</p>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="metric-val">80%</div><div class="metric-sub">Basura de origen urbano</div></div>
+          <div class="metric-item"><div class="metric-val">8 Clases</div><div class="metric-sub">Materiales contaminantes</div></div>
+          <div class="metric-item"><div class="metric-val">&lt; 10%</div><div class="metric-sub">Inspección manual actual</div></div>
+          <div class="metric-item"><div class="metric-val">100%</div><div class="metric-sub">Automatizable con IA</div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: Metodología CRISP-ML -->
+      <div class="slide" id="slide-1">
+        <span class="badge">Capítulo 2 / 5 · Metodología & Solución</span>
+        <h2>Arquitectura Metodológica CRISP-ML(Q)</h2>
+        <h3>De la extracción de características visuales a la visión computacional profunda</h3>
+        <div class="content-box">
+          <p>Implementamos un marco de calidad CRISP-ML(Q) en dos paradigmas complementarios:<br>
+          1. <strong>Pipeline ETL Tabular:</strong> Convierte imágenes en 9 variables estadísticas de color (RGB) y textura (contraste, brillo) con Random Forest y SVM.<br>
+          2. <strong>Transfer Learning Convolucional:</strong> Red profunda <strong>MobileNetV2</strong> preentrenada en ImageNet y adaptada a residuos fluviales.</p>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="metric-val">6 Fases</div><div class="metric-sub">Ciclo CRISP-ML(Q)</div></div>
+          <div class="metric-item"><div class="metric-val">9 Vars</div><div class="metric-sub">Características ETL</div></div>
+          <div class="metric-item"><div class="metric-val">4 Modelos</div><div class="metric-sub">Evaluados rigurosamente</div></div>
+          <div class="metric-item"><div class="metric-val">2 Enfoques</div><div class="metric-sub">Tabular vs Deep Learning</div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: Datos y ETL -->
+      <div class="slide" id="slide-2">
+        <span class="badge">Capítulo 3 / 5 · Datos & Profiling</span>
+        <h2>Dataset y Pipeline de Ingeniería de Datos</h2>
+        <h3>1,200 imágenes balanceadas con verificación de calidad en YData Profiling</h3>
+        <div class="content-box">
+          <p>Utilizamos el dataset de Kaggle <em>Unified Waste Classification Dataset</em> con 8 categorías balanceadas (150 imágenes por clase): <code>battery</code>, <code>glass</code>, <code>metal</code>, <code>organic_waste</code>, <code>paper_cardboard</code>, <code>plastic</code>, <code>textiles</code> y <code>trash</code>. Partición estratificada 80/20 y escalamiento estándar previniendo cualquier fuga de información.</p>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="metric-val">1,200</div><div class="metric-sub">Imágenes balanceadas</div></div>
+          <div class="metric-item"><div class="metric-val">150</div><div class="metric-sub">Muestras por categoría</div></div>
+          <div class="metric-item"><div class="metric-val">0</div><div class="metric-sub">Valores nulos o corruptos</div></div>
+          <div class="metric-item"><div class="metric-val">80 / 20</div><div class="metric-sub">División Train / Test</div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: Resultados y Comparativa -->
+      <div class="slide" id="slide-3">
+        <span class="badge">Capítulo 4 / 5 · Benchmark & Resultados</span>
+        <h2>El Salto de Rendimiento con Transfer Learning</h2>
+        <h3>+56.2% de incremento en exactitud al capturar geometría y patrones espaciales</h3>
+        <div class="content-box">
+          <p><strong>Modelo Tabular (SVM):</strong> 35.0% Accuracy · F1 Macro: 0.3263 · ROC-AUC: 0.7303.<br>
+          <em>Limitación:</em> El color promedio no distingue una lata metálica de un vidrio mojado.<br>
+          <strong>Transfer Learning (MobileNetV2):</strong> <strong>91.2% Accuracy</strong> · F1 Macro: <strong>0.9030</strong> · ROC-AUC: <strong>0.9820</strong>.<br>
+          Reconocimiento de siluetas, aristas y logotipos aun con agua turbia o sombras.</p>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="metric-val" style="color:#f59e0b;">35.0%</div><div class="metric-sub">Accuracy Tabular (SVM)</div></div>
+          <div class="metric-item"><div class="metric-val">91.2%</div><div class="metric-sub">Accuracy Transfer Learning</div></div>
+          <div class="metric-item"><div class="metric-val">+56.2%</div><div class="metric-sub">Ganancia Neta</div></div>
+          <div class="metric-item"><div class="metric-val">0.982</div><div class="metric-sub">ROC-AUC Multiclase</div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 5: Despliegue e Impacto -->
+      <div class="slide" id="slide-4">
+        <span class="badge">Capítulo 5 / 5 · Despliegue & Conclusiones</span>
+        <h2>Prototipo Desplegado e Impacto Ecológico</h2>
+        <h3>Streamlit Cloud + Landing Page en GitHub Pages con IA Verde</h3>
+        <div class="content-box">
+          <p>El sistema cuenta con dos interfaces públicas en la nube:<br>
+          • <strong>Streamlit App:</strong> Simulador interactivo con cámara web y comparativa en dos pestañas.<br>
+          • <strong>Landing Page:</strong> Arquitectura en capas para educación y divulgación ambiental.<br>
+          Gobernanza ética con protección de privacidad ribereña y modelo Human-in-the-Loop.</p>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="metric-val">100%</div><div class="metric-sub">Desplegado en la Nube</div></div>
+          <div class="metric-item"><div class="metric-val">&lt; 45 ms</div><div class="metric-sub">Latencia Inferencia</div></div>
+          <div class="metric-item"><div class="metric-val">UFHEC</div><div class="metric-sub">Maestría en IA</div></div>
+          <div class="metric-item"><div class="metric-val">2026</div><div class="metric-sub">Edauris Adon Evangelista</div></div>
+        </div>
+      </div>
+
+      <!-- Barra de subtítulos -->
+      <div class="subtitles-bar" id="subtitles">
+        Presiona "Reproducir Video" para iniciar la sustentación interactiva en español.
+      </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="controls-panel">
+      <div class="progress-bar-container" id="progressBar" onclick="seekVideo(event)">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+
+      <div class="btn-row">
+        <div class="btn-group">
+          <button class="play-btn" id="playBtn" onclick="togglePlay()">▶ Reproducir Video</button>
+          <button class="ctrl-btn" onclick="prevSlide()">⏮ Anterior</button>
+          <button class="ctrl-btn" onclick="nextSlide()">Siguiente ⏭</button>
+        </div>
+        <div class="timer-text" id="timer">00:00 / 05:00</div>
+        <div class="btn-group">
+          <button class="ctrl-btn" id="audioToggle" onclick="toggleSpeech()">🔊 Voz: Activa</button>
+        </div>
+      </div>
+
+      <div class="chapter-pills">
+        <div class="chapter-pill active" onclick="jumpToChapter(0)">1. Problema (0:00)</div>
+        <div class="chapter-pill" onclick="jumpToChapter(1)">2. Metodología (1:00)</div>
+        <div class="chapter-pill" onclick="jumpToChapter(2)">3. Datos & ETL (2:00)</div>
+        <div class="chapter-pill" onclick="jumpToChapter(3)">4. Benchmark (3:00)</div>
+        <div class="chapter-pill" onclick="jumpToChapter(4)">5. Despliegue (4:00)</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chapters = [
+      { start: 0, end: 60, title: "Diagnóstico Fluvial", sub: "La acumulación de residuos sólidos en ríos y cañadas destruye ecosistemas y tapona compuertas pluviales provocando inundaciones severas." },
+      { start: 60, end: 120, title: "Metodología CRISP-ML", sub: "Diseñamos un pipeline comparativo bajo CRISP-ML(Q): Extracción ETL tabular (Random Forest, SVM) frente a Transfer Learning profundo con MobileNetV2." },
+      { start: 120, end: 180, title: "Datos y ETL", sub: "1,200 imágenes en 8 clases balanceadas del Unified Waste Dataset de Kaggle, perfiladas con YData Profiling y partición estratificada 80/20." },
+      { start: 180, end: 240, title: "Resultados y Benchmark", sub: "SVM lideró en el modelo tabular con 35.0% de exactitud, pero MobileNetV2 dio un salto al 91.2% (+56.2%) reconociendo formas y siluetas tridimensionales." },
+      { start: 240, end: 300, title: "Despliegue e Impacto", sub: "Desplegamos en Streamlit Cloud y GitHub Pages con inferencia en tiempo real, cámara web y principios de IA Verde y Ética ambiental." }
+    ];
+
+    let currentTime = 0;
+    const totalDuration = 300; // 5 minutos
+    let isPlaying = false;
+    let timerInterval = null;
+    let currentSlideIdx = 0;
+    let speechEnabled = true;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = Math.floor(sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateUI() {
+      document.getElementById('timer').innerText = `${formatTime(currentTime)} / ${formatTime(totalDuration)}`;
+      const pct = (currentTime / totalDuration) * 100;
+      document.getElementById('progressFill').style.width = `${pct}%`;
+
+      // Determinar capítulo activo
+      let activeIdx = 0;
+      for (let i = 0; i < chapters.length; i++) {
+        if (currentTime >= chapters[i].start && currentTime < chapters[i].end) {
+          activeIdx = i;
+          break;
+        }
+      }
+
+      if (activeIdx !== currentSlideIdx) {
+        setSlide(activeIdx);
+      }
+
+      document.getElementById('subtitles').innerText = chapters[activeIdx].sub;
+
+      // Actualizar pills
+      const pills = document.querySelectorAll('.chapter-pill');
+      pills.forEach((p, idx) => {
+        if (idx === activeIdx) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
+    function setSlide(idx) {
+      currentSlideIdx = idx;
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach((s, i) => {
+        if (i === idx) s.classList.add('active');
+        else s.classList.remove('active');
+      });
+      speakCurrentSlide();
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        pauseVideo();
+      } else {
+        playVideo();
+      }
+    }
+
+    function playVideo() {
+      isPlaying = true;
+      document.getElementById('playBtn').innerText = '⏸ Pausar';
+      timerInterval = setInterval(() => {
+        currentTime++;
+        if (currentTime >= totalDuration) {
+          currentTime = totalDuration;
+          pauseVideo();
+        }
+        updateUI();
+      }, 1000);
+      speakCurrentSlide();
+    }
+
+    function pauseVideo() {
+      isPlaying = false;
+      document.getElementById('playBtn').innerText = '▶ Reproducir Video';
+      if (timerInterval) clearInterval(timerInterval);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+
+    function seekVideo(event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const pct = clickX / rect.width;
+      currentTime = Math.floor(pct * totalDuration);
+      updateUI();
+    }
+
+    function jumpToChapter(idx) {
+      currentTime = chapters[idx].start;
+      setSlide(idx);
+      updateUI();
+    }
+
+    function prevSlide() {
+      if (currentSlideIdx > 0) {
+        jumpToChapter(currentSlideIdx - 1);
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlideIdx < chapters.length - 1) {
+        jumpToChapter(currentSlideIdx + 1);
+      }
+    }
+
+    function toggleSpeech() {
+      speechEnabled = !speechEnabled;
+      document.getElementById('audioToggle').innerText = speechEnabled ? '🔊 Voz: Activa' : '🔇 Voz: Silenciada';
+      if (!speechEnabled && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      } else if (speechEnabled && isPlaying) {
+        speakCurrentSlide();
+      }
+    }
+
+    function speakCurrentSlide() {
+      if (!speechEnabled || !isPlaying || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const text = chapters[currentSlideIdx].sub;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      utterance.rate = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
+

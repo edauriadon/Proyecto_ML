@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Inteligente de Detección y Clasificación de Desechos Sólidos en Ríos · UFHEC</title>
+  
+  <!-- Meta SEO -->
+  <meta name="description" content="Proyecto Final de Machine Learning: Sistema Inteligente para la Detección y Clasificación de Desechos Sólidos en Ríos, Arroyos y Cañadas mediante Machine Learning Supervisado y Transfer Learning.">
+  <meta name="author" content="Edauris Adon Evangelista">
+  
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #00897b;
+      --primary-dark: #004d40;
+      --primary-light: #4ebaaa;
+      --accent: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.35);
+      --dark-bg: #090e17;
+      --card-bg: #111a28;
+      --card-border: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* CAPA 1: NAVEGACIÓN FIJA */
+    nav.navbar {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: rgba(9, 14, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      z-index: 1000;
+      padding: 14px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #38bdf8;
+      text-decoration: none;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .nav-brand i { color: var(--primary-light); font-size: 1.4rem; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #38bdf8; }
+    .nav-btns { display: flex; gap: 12px; }
+    .btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 137, 123, 0.5);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid #334155;
+    }
+    .btn-outline:hover {
+      background: #1e293b;
+      border-color: #475569;
+    }
+
+    /* SECCIONES Y CONTENEDORES */
+    section { padding: 90px 5%; position: relative; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 50px; }
+    .section-tag {
+      display: inline-block;
+      color: var(--primary-light);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: white;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .section-desc {
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 12px auto 0;
+      font-size: 1.05rem;
+    }
+
+    /* CAPA 2: HERO */
+    .hero-section {
+      padding-top: 150px;
+      padding-bottom: 100px;
+      background: radial-gradient(circle at 50% 20%, rgba(0, 137, 123, 0.15) 0%, transparent 60%);
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 30px;
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .hero-title {
+      font-size: 3.4rem;
+      font-weight: 800;
+      line-height: 1.15;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 30%, #38bdf8 80%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 820px;
+      margin: 0 auto 35px;
+      font-weight: 400;
+    }
+    .hero-ctas {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 60px;
+      flex-wrap: wrap;
+    }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); border-color: var(--primary-light); }
+    .stat-number { font-size: 2.3rem; font-weight: 800; color: #10b981; font-family: 'Space Grotesk', sans-serif; }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; font-weight: 600; }
+
+    /* CAPA 3: PROBLEMÁTICA & CATEGORÍAS */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 50px;
+      align-items: center;
+      margin-bottom: 60px;
+    }
+    .problem-text h3 { font-size: 1.8rem; margin-bottom: 16px; color: #f1f5f9; }
+    .problem-text p { color: var(--text-muted); margin-bottom: 16px; font-size: 1.05rem; }
+    .problem-img-wrapper {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .problem-img-wrapper img { width: 100%; display: block; object-fit: cover; height: 350px; }
+    .ai-scan-overlay {
+      position: absolute;
+      top: 15px; left: 15px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #10b981;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #10b981;
+      font-weight: 700;
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+    .category-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.25s;
+    }
+    .category-card:hover { transform: translateY(-4px); border-color: #38bdf8; }
+    .category-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .category-title { font-size: 1.05rem; font-weight: 700; color: white; margin-bottom: 6px; }
+    .category-desc { font-size: 0.83rem; color: var(--text-muted); }
+
+    /* CAPA 4: CRISP-ML FASES */
+    .crisp-timeline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .crisp-step {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 26px;
+      position: relative;
+    }
+    .crisp-num {
+      width: 36px; height: 36px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .crisp-title { font-size: 1.2rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px; }
+    .crisp-desc { font-size: 0.92rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* CAPA 5: BENCHMARK Y RESULTADOS */
+    .benchmark-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 35px;
+      overflow-x: auto;
+    }
+    table.custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    table.custom-table th, table.custom-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    table.custom-table th {
+      background: #090e17;
+      color: #38bdf8;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      letter-spacing: 1px;
+    }
+    table.custom-table tr:hover { background: rgba(56, 189, 248, 0.03); }
+    .highlight-cell { font-weight: bold; color: #10b981; }
+
+    /* CAPA 6: SIMULADOR WEB */
+    .simulator-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 35px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+    .slider-group { margin-bottom: 18px; }
+    .slider-header { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--primary-light);
+    }
+    .sim-result-box {
+      background: #090e17;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .sim-result-class { font-size: 2rem; font-weight: 800; color: #38bdf8; margin: 12px 0 6px; }
+
+    /* CAPA 7: VIDEO EMBEBIDO */
+    .video-frame-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #090e17;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    iframe.video-frame {
+      width: 100%;
+      height: 520px;
+      border: none;
+      display: block;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #06090f;
+      border-top: 1px solid var(--card-border);
+      padding: 50px 5% 30px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: #38bdf8; text-decoration: none; }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .hero-title { font-size: 2.6rem; }
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .problem-grid, .simulator-wrapper { grid-template-columns: 1fr; }
+      .crisp-timeline { grid-template-columns: 1fr; }
+      .categories-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CAPA 1: BARRA DE NAVEGACIÓN -->
+  <nav class="navbar">
+    <a href="#" class="nav-brand">
+      <i class="fa-solid fa-water"></i> RiverWaste AI
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problema">Problemática</a></li>
+      <li><a href="#metodologia">CRISP-ML</a></li>
+      <li><a href="#benchmark">Benchmark</a></li>
+      <li><a href="#simulador">Simulador</a></li>
+      <li><a href="#video">Video</a></li>
+      <li><a href="#recursos">Recursos</a></li>
+    </ul>
+    <div class="nav-btns">
+      <a href="https://github.com/edauriadon/Proyecto-ML.git" target="_blank" class="btn btn-outline">
+        <i class="fa-brands fa-github"></i> Repositorio
+      </a>
+      <a href="https://Proyecto_ML.streamlit.app" target="_blank" class="btn btn-primary">
+        <i class="fa-solid fa-rocket"></i> Abrir Streamlit App
+      </a>
+    </div>
+  </nav>
+
+  <!-- CAPA 2: HERO SECTION -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-badge">
+        <i class="fa-solid fa-graduation-cap"></i> Maestría en IA, Educación e Investigación · UFHEC
+      </div>
+      <h1 class="hero-title">Sistema Inteligente para la Detección y Clasificación de Desechos Sólidos en Ríos</h1>
+      <p class="hero-subtitle">
+        Monitoreo ambiental automatizado mediante Machine Learning supervisado (Random Forest, SVM) 
+        y visión profunda por Transfer Learning (MobileNetV2) para proteger ríos, arroyos y cañadas urbanas.
+      </p>
+      
+      <div class="hero-ctas">
+        <a href="https://Proyecto_ML.streamlit.app" target="_blank" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem;">
+          <i class="fa-solid fa-play"></i> Probar Prototipo en Streamlit
+        </a>
+        <a href="https://github.com/edauriadon/Proyecto-ML.git" target="_blank" class="btn btn-outline" style="padding: 12px 28px; font-size: 1rem;">
+          <i class="fa-brands fa-github"></i> Ver Código en GitHub
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-number">1,200</div>
+          <div class="stat-label">Imágenes de Muestra</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">8</div>
+          <div class="stat-label">Clases de Residuos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">91.2%</div>
+          <div class="stat-label">Accuracy Transfer Learning</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">0.982</div>
+          <div class="stat-label">ROC-AUC Multiclase</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPA 3: PROBLEMÁTICA & CATEGORÍAS -->
+  <section id="problema">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Contexto Ambiental</span>
+        <h2 class="section-title">La Crisis de Basura en Cuencas Fluviales</h2>
+        <p class="section-desc">Millones de toneladas de desechos sólidos circulan libremente por ríos y cañadas urbanas, colapsando drenajes y destruyendo la vida acuática.</p>
+      </div>
+
+      <div class="problem-grid">
+        <div class="problem-text">
+          <h3>¿Por qué la inspección manual es obsoleta?</h3>
+          <p>Los censos y monitoreos convencionales dependen de brigadas manuales que registran residuos en orillas de difícil acceso. Este método resulta lento, peligroso, esporádico y carece de capacidad predictiva durante lluvias intensas o crecidas repentinas.</p>
+          <p><strong>Nuestra Solución:</strong> Implementar cámaras inteligentes en puentes peatonales y biobardas que extraigan características de colorimetría y textura para alertar en tiempo real a las autoridades ambientales sobre qué material está pasando por el río.</p>
+          <p><i class="fa-solid fa-check-circle" style="color:#10b981;"></i> <strong>Pregunta de Investigación:</strong> <em>¿En qué medida la extracción de características visuales y el modelado supervisado con Transfer Learning permiten clasificar residuos sólidos fluviales con alta precisión métrica?</em></p>
+        </div>
+        <div class="problem-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?auto=format&fit=crop&w=800&q=80" alt="Residuos en río">
+          <div class="ai-scan-overlay"><i class="fa-solid fa-brain"></i> IA Detection Active · 8 Clases</div>
+        </div>
+      </div>
+
+      <div class="categories-grid">
+        <div class="category-card">
+          <div class="category-icon">🥫</div>
+          <div class="category-title">Metal / Latas</div>
+          <div class="category-desc">Envases de aluminio y conservas flotantes.</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🍾</div>
+          <div class="category-title">Vidrio</div>
+          <div class="category-desc">Botellas transparentes y fragmentos reflectivos.</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🍎</div>
+          <div class="category-title">Residuo Orgánico</div>
+          <div class="category-desc">Podas, cáscaras y materia biológica en degradación.</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🔋</div>
+          <div class="category-title">Pilas / Baterías</div>
+          <div class="category-desc">Residuo peligroso con alto contenido de metales pesados.</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🥤</div>
+          <div class="category-title">Plásticos / PET</div>
+          <div class="category-desc">Botellas sintéticas, bolsas plásticas y polímeros.</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">📦</div>
+          <div class="category-title">Papel y Cartón</div>
+          <div class="category-desc">Cajas y envoltorios degradados por humedad fluvial.</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">👕</div>
+          <div class="category-title">Textiles</div>
+          <div class="category-desc">Prendas de vestir y telas sintéticas sumergidas.</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🗑️</div>
+          <div class="category-title">Desecho Común</div>
+          <div class="category-desc">Basura mixta no reciclable arrastrada por la corriente.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPA 4: CRISP-ML(Q) -->
+  <section id="metodologia" style="background:#0c121d;">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Rigor Científico</span>
+        <h2 class="section-title">Metodología CRISP-ML(Q)</h2>
+        <p class="section-desc">Ciclo de vida estructurado con aseguramiento de calidad continua desde la comprensión del problema hasta la gobernanza ética.</p>
+      </div>
+
+      <div class="crisp-timeline">
+        <div class="crisp-step">
+          <div class="crisp-num">1</div>
+          <div class="crisp-title">Comprensión del Negocio</div>
+          <div class="crisp-desc">Definición de KPIs ambientales, impacto en reducción de taponamiento de biobardas y metas de clasificación multiclase.</div>
+        </div>
+        <div class="crisp-step">
+          <div class="crisp-num">2</div>
+          <div class="crisp-title">Ingeniería de Datos & ETL</div>
+          <div class="crisp-desc">Extracción de 9 variables de color y textura con Pillow y NumPy. Profiling con YData y partición estratificada 80/20 sin fuga de datos.</div>
+        </div>
+        <div class="crisp-step">
+          <div class="crisp-num">3</div>
+          <div class="crisp-title">Ingeniería de Modelos</div>
+          <div class="crisp-desc">Entrenamiento comparativo: Regresión Logística, Random Forest, SVM (RBF) y Transfer Learning profundo con MobileNetV2.</div>
+        </div>
+        <div class="crisp-step">
+          <div class="crisp-num">4</div>
+          <div class="crisp-title">Aseguramiento de Calidad</div>
+          <div class="crisp-desc">Evaluación con Macro F1 (0.9030), ROC-AUC (0.9820), matriz de confusión y análisis de resiliencia ante agua turbia.</div>
+        </div>
+        <div class="crisp-step">
+          <div class="crisp-num">5</div>
+          <div class="crisp-title">Despliegue en Capas</div>
+          <div class="crisp-desc">Landing Page desacoplada en GitHub Pages y aplicación de inferencia predictiva interactiva en Streamlit Cloud.</div>
+        </div>
+        <div class="crisp-step">
+          <div class="crisp-num">6</div>
+          <div class="crisp-title">Monitoreo & IA Verde</div>
+          <div class="crisp-desc">Supervisión de Data Drift ante cambios estacionales, protección de privacidad ribereña y modelo Human-in-the-Loop.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPA 5: BENCHMARK Y RESULTADOS -->
+  <section id="benchmark">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Resultados Experimentales</span>
+        <h2 class="section-title">Benchmark Comparativo de Modelos</h2>
+        <p class="section-desc">Comparación cuantitativa entre el modelado tabular clásico (cuaderno ProyML.ipynb) y visión profunda (carpeta converted_keras).</p>
+      </div>
+
+      <div class="benchmark-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Modelo / Enfoque</th>
+              <th>Tipo de Entrada</th>
+              <th>Accuracy</th>
+              <th>Precision Macro</th>
+              <th>Recall Macro</th>
+              <th>F1-Score Macro</th>
+              <th>ROC-AUC (OvR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Regresión Logística</strong></td>
+              <td>9 Variables Tabulares</td>
+              <td>28.75%</td>
+              <td>0.2947</td>
+              <td>0.2875</td>
+              <td>0.2612</td>
+              <td>0.7221</td>
+            </tr>
+            <tr>
+              <td><strong>Random Forest (100 árb.)</strong></td>
+              <td>9 Variables Tabulares</td>
+              <td>32.92%</td>
+              <td>0.3330</td>
+              <td>0.3292</td>
+              <td>0.3232</td>
+              <td>0.7190</td>
+            </tr>
+            <tr>
+              <td><strong>SVM (Kernel RBF)</strong></td>
+              <td>9 Variables Tabulares</td>
+              <td>35.00%</td>
+              <td>0.3323</td>
+              <td>0.3500</td>
+              <td>0.3263</td>
+              <td>0.7303</td>
+            </tr>
+            <tr style="background: rgba(16, 185, 129, 0.08);">
+              <td><strong>🚀 Transfer Learning (MobileNetV2)</strong></td>
+              <td>Tensor Espacial 224x224x3</td>
+              <td class="highlight-cell">91.20%</td>
+              <td class="highlight-cell">0.9085</td>
+              <td class="highlight-cell">0.9120</td>
+              <td class="highlight-cell">0.9030</td>
+              <td class="highlight-cell">0.9820</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPA 6: SIMULADOR WEB INTERACTIVO -->
+  <section id="simulador" style="background:#0c121d;">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Interactividad en Tiempo Real</span>
+        <h2 class="section-title">Simulador de Inferencia en Vivo</h2>
+        <p class="section-desc">Ajusta las firmas espectrales y texturales para clasificar un residuo en vivo mediante el modelo tabular del cuaderno.</p>
+      </div>
+
+      <div class="simulator-wrapper">
+        <div class="sim-controls">
+          <div class="slider-group">
+            <div class="slider-header"><span>Rojo Promedio (mean_r):</span> <span id="lbl_r">170</span></div>
+            <input type="range" id="sl_r" min="0" max="255" value="170" oninput="runSim()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>Verde Promedio (mean_g):</span> <span id="lbl_g">165</span></div>
+            <input type="range" id="sl_g" min="0" max="255" value="165" oninput="runSim()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>Azul Promedio (mean_b):</span> <span id="lbl_b">160</span></div>
+            <input type="range" id="sl_b" min="0" max="255" value="160" oninput="runSim()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>Brillo (brightness):</span> <span id="lbl_br">165</span></div>
+            <input type="range" id="sl_br" min="0" max="255" value="165" oninput="runSim()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span>Contraste (contrast):</span> <span id="lbl_ct">60</span></div>
+            <input type="range" id="sl_ct" min="0" max="130" value="60" oninput="runSim()">
+          </div>
+        </div>
+
+        <div class="sim-result-box">
+          <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Predicción del Prototipo</div>
+          <div class="sim-result-class" id="sim_res">🥫 Metal (Lata)</div>
+          <div style="font-size: 0.95rem; color: #10b981;" id="sim_dist">Distancia euclidiana: 12.4</div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 15px;">
+            Para clasificar mediante imagen real o cámara web con Transfer Learning (+91% de exactitud), abre la aplicación en Streamlit.
+          </p>
+          <a href="https://Proyecto_ML.streamlit.app" target="_blank" class="btn btn-primary" style="margin-top: 15px;">
+            <i class="fa-solid fa-camera"></i> Inferencia con Cámara en Streamlit
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPA 7: VIDEO INTERACTIVO -->
+  <section id="video">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Sustentación Académica</span>
+        <h2 class="section-title">Video Interactivo de Presentación</h2>
+        <p class="section-desc">Elevator Pitch estructurado de 5 minutos explicando el problema, los datos, modelos y demostración en Streamlit.</p>
+      </div>
+
+      <div class="video-frame-container">
+        <iframe class="video-frame" src="video/interactive_presentation.html"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPA 8: DESCARGAS Y RECURSOS -->
+  <section id="recursos" style="background:#0c121d;">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Archivos de Entrega</span>
+        <h2 class="section-title">Documentación y Repositorios</h2>
+        <p class="section-desc">Acceso a todos los artefactos requeridos por la guía de la asignatura.</p>
+      </div>
+
+      <div class="categories-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="category-card" style="text-align: left; padding: 25px;">
+          <i class="fa-solid fa-file-word" style="font-size: 2rem; color: #3b82f6; margin-bottom: 12px;"></i>
+          <h3 style="color: white; font-size: 1.15rem; margin-bottom: 8px;">Documento Técnico Word</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">Diligenciado sobre la plantilla oficial UFHEC con todos los apartados.</p>
+          <a href="Documento_Tecnico_Proyecto_ML_UFHEC.docx" class="btn btn-outline" style="font-size: 0.82rem;">
+            <i class="fa-solid fa-download"></i> Descargar DOCX
+          </a>
+        </div>
+
+        <div class="category-card" style="text-align: left; padding: 25px;">
+          <i class="fa-solid fa-file-pdf" style="font-size: 2rem; color: #ef4444; margin-bottom: 12px;"></i>
+          <h3 style="color: white; font-size: 1.15rem; margin-bottom: 8px;">Documento Técnico PDF</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">Versión exportada para evaluación académica y sustentación.</p>
+          <a href="Documento_Tecnico_Proyecto_ML_UFHEC.pdf" target="_blank" class="btn btn-outline" style="font-size: 0.82rem;">
+            <i class="fa-solid fa-eye"></i> Ver / Descargar PDF
+          </a>
+        </div>
+
+        <div class="category-card" style="text-align: left; padding: 25px;">
+          <i class="fa-solid fa-book-journal-whills" style="font-size: 2rem; color: #10b981; margin-bottom: 12px;"></i>
+          <h3 style="color: white; font-size: 1.15rem; margin-bottom: 8px;">Metodología & ADRs</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 15px;">Documentación completa CRISP-ML(Q) y 4 Architecture Decision Records.</p>
+          <a href="docs/CRISP_ML_METHODOLOGY.md" class="btn btn-outline" style="font-size: 0.82rem;">
+            <i class="fa-solid fa-book"></i> Ver Documentación
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPA 9: FOOTER -->
+  <footer>
+    <div class="container">
+      <p style="font-size: 1.1rem; color: white; margin-bottom: 10px;">
+        <strong>Proyecto Final: Sistema Inteligente para la Detección y Clasificación de Desechos Sólidos en Ríos</strong>
+      </p>
+      <p style="margin-bottom: 15px;">
+        Maestría en IA, Educación e Investigación | Universidad Federico Henríquez y Carvajal (UFHEC)<br>
+        <strong>Autor:</strong> Edauris Adon Evangelista · Matrícula: MT-2026-02532
+      </p>
+      <p>
+        <a href="https://github.com/edauriadon/Proyecto-ML.git" target="_blank"><i class="fa-brands fa-github"></i> Repositorio GitHub</a> · 
+        <a href="https://Proyecto_ML.streamlit.app" target="_blank"><i class="fa-solid fa-rocket"></i> Despliegue en Streamlit Cloud</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const profiles = {
+      "battery": {"mean_r":160.95,"mean_g":160.34,"mean_b":156.91,"brightness":159.4,"contrast":72.63},
+      "glass": {"mean_r":174.99,"mean_g":169.59,"mean_b":157.3,"brightness":167.29,"contrast":54.1},
+      "metal": {"mean_r":170.96,"mean_g":165.56,"mean_b":161.25,"brightness":165.93,"contrast":61.33},
+      "organic_waste": {"mean_r":156.14,"mean_g":136.39,"mean_b":115.07,"brightness":135.87,"contrast":64.64},
+      "paper_cardboard": {"mean_r":175.21,"mean_g":164.92,"mean_b":154.12,"brightness":164.75,"contrast":54.28},
+      "plastic": {"mean_r":171.73,"mean_g":169.23,"mean_b":168.27,"brightness":169.74,"contrast":52.31},
+      "textiles": {"mean_r":150.75,"mean_g":134.84,"mean_b":131.33,"brightness":138.97,"contrast":56.82},
+      "trash": {"mean_r":171.39,"mean_g":170.13,"mean_b":164.3,"brightness":168.61,"contrast":44.56}
+    };
+
+    const emojis = {
+      "metal": "🥫 Metal (Lata)",
+      "glass": "🍾 Vidrio (Botella)",
+      "organic_waste": "🍎 Residuo Orgánico",
+      "battery": "🔋 Batería / Pila",
+      "trash": "🗑️ Desecho Común",
+      "textiles": "👕 Textil / Ropa",
+      "paper_cardboard": "📦 Papel y Cartón",
+      "plastic": "🥤 Plástico (Envase PET)"
+    };
+
+    function runSim() {
+      const r = parseFloat(document.getElementById('sl_r').value);
+      const g = parseFloat(document.getElementById('sl_g').value);
+      const b = parseFloat(document.getElementById('sl_b').value);
+      const br = parseFloat(document.getElementById('sl_br').value);
+      const ct = parseFloat(document.getElementById('sl_ct').value);
+
+      document.getElementById('lbl_r').innerText = r;
+      document.getElementById('lbl_g').innerText = g;
+      document.getElementById('lbl_b').innerText = b;
+      document.getElementById('lbl_br').innerText = br;
+      document.getElementById('lbl_ct').innerText = ct;
+
+      const input = { mean_r: r, mean_g: g, mean_b: b, brightness: br, contrast: ct };
+      let best = null, minDist = Infinity;
+
+      for (const cls in profiles) {
+        let d = 0;
+        for (const k in input) {
+          d += Math.pow(input[k] - profiles[cls][k], 2);
+        }
+        d = Math.sqrt(d);
+        if (d < minDist) {
+          minDist = d;
+          best = cls;
+        }
+      }
+
+      document.getElementById('sim_res').innerText = emojis[best] || best;
+      document.getElementById('sim_dist').innerText = `Distancia euclidiana al prototipo: ${minDist.toFixed(2)}`;
+    }
+
+    runSim();
+  </script>
+</body>
+</html>
+
