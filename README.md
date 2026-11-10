@@ -38,8 +38,8 @@ El ciclo de desarrollo integra:
 
 ## 🔗 Enlaces Oficiales del Proyecto
 - 🌐 **Aplicación Web en Streamlit Cloud:** [https://Proyecto_ML.streamlit.app](https://Proyecto_ML.streamlit.app)
-- 📂 **Repositorio en GitHub:** [https://github.com/edauriadon/Proyecto-ML.git](https://github.com/edauriadon/Proyecto-ML.git)
-- 📖 **Landing Page (GitHub Pages):** [https://edauriadon.github.io/Proyecto-ML/](https://edauriadon.github.io/Proyecto-ML/)
+- 📂 **Repositorio en GitHub:** [https://github.com/edauriadon/Proyecto-ML.git](https://github.com/edauriadon/Proyecto_ML.git)
+- 📖 **Landing Page (GitHub Pages):** [https://edauriadon.github.io/Proyecto_ML/](https://edauriadon.github.io/Proyecto_ML/)
 
 ---
 
